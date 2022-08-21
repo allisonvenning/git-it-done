@@ -1,5 +1,24 @@
+var userFormEl = document.querySelector("#user-form");
+var nameInputEl = document.querySelector("#username");
 var repoContainerEl = document.querySelector("#repos-container");
 var repoSearchTerm = document.querySelector("#repo-search-term");
+
+var formSubmitHandler = function(event) {
+    // prevent page from refreshing
+
+    event.preventDefault();
+    // get value from input element
+    var username = nameInputEl.value.trim();
+    
+    if (username) {
+        getUserRepos(username);
+
+        // clear old content
+        nameInputEl.value="";
+    } else {
+        alert("please enter a GitHub username");
+    }
+    };
 
 var getUserRepos = function(user) {
     // format the fithub api url
@@ -9,7 +28,9 @@ var getUserRepos = function(user) {
     fetch(apiUrl).then(function(response) {
         // request was successful
         if (response.ok) {
-          response.json().then(function(data) {
+            console.log(response);
+            response.json().then(function(data) {
+                console.log(data);
             displayRepos(data, user);
           });
         } else {
@@ -17,28 +38,9 @@ var getUserRepos = function(user) {
         }
       })
       .catch(function(error) {
-        // Notice this `.catch()` getting chained onto the end of the `.then` method
         alert("Unable to connect to GitHub");
       });
     }; 
-
-var userFormEl = document.querySelector("#user-form");
-var nameInputEl = document.querySelector("#username");
-
-var formSubmitHandler = function(event) {
-    event.preventDefault();
-    // get value from input element
-    var username = nameInputEl.value.trim();
-    
-    if (username) {
-        getUserRepos(username);
-        nameInputEl.value="";
-    } else {
-        alert("please enter a GitHub username");
-    }
-    };
-
-userFormEl.addEventListener("submit", formSubmitHandler);
 
 var displayRepos = function(repos, searchTerm) {
     // check if api returned any repos
@@ -46,10 +48,7 @@ var displayRepos = function(repos, searchTerm) {
         repoContainerEl.textContent = "No repositories found.";
         return;
     }
-    console.log(repos);
-    console.log(searchTerm);
-    // clear old content
-    repoContainerEl.textContent="";
+
     repoSearchTerm.textContent= searchTerm;
 
     // loop over repos
@@ -82,9 +81,11 @@ var displayRepos = function(repos, searchTerm) {
 
         // append to container
         repoEl.appendChild(statusEl);
-        }
 
         // append container to the DOM
         repoContainerEl.appendChild(repoEl);
-
+    }
 };
+
+// add event listeners to forms
+userFormEl.addEventListener("submit", formSubmitHandler);
